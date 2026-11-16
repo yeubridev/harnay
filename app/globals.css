@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/* Tokens. Every colour, face and curve on the site comes from here. See DESIGN.md. */
+:root {
+  --chalk: #f1f2ee; /* ground */
+  --chalk-2: #e5e7e0; /* raised surface: one tone step, no shadow */
+  --chalk-3: #d5d8cf; /* pressed surface, rules inside surfaces */
+  --ink: #14171a; /* text and borders */
+  --ink-2: #474c54; /* captions and meta only */
+  --signal: #ffd60a; /* the action, and "asks you" */
+  --stop: #b42318; /* blocked */
+  --go: #17663a; /* runs */
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --radius-panel: 10px;
+  --radius-control: 6px;
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-chalk: var(--chalk);
+  --color-chalk-2: var(--chalk-2);
+  --color-chalk-3: var(--chalk-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-signal: var(--signal);
+  --color-stop: var(--stop);
+  --color-go: var(--go);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-code), ui-monospace, "SF Mono", Menlo, monospace;
+  --radius-panel: var(--radius-panel);
+  --radius-control: var(--radius-control);
+  --ease-out: var(--ease-out);
+  --breakpoint-wide: 72rem;
+}
+
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+  background: var(--chalk);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--ink);
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+/* Display type: Archivo pushed to its condensed width. */
+.display {
+  font-stretch: 68%;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 0.94;
+}
+
+.shell {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  .shell {
+    padding-inline: 2rem;
+  }
+}
+
+/* The one button. Yellow fill, ink border, ink text. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.625rem 1.25rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-control);
+  background: var(--signal);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 140ms var(--ease-out);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button[disabled] {
+  background: var(--chalk-3);
+  color: var(--ink-2);
+  border-color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.button-quiet {
+  background: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:not([disabled]):hover {
+    background: var(--ink);
+    color: var(--signal);
+  }
+  .button-quiet:not([disabled]):hover {
+    background: var(--ink);
+    color: var(--chalk);
+  }
+}
+
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    background: var(--signal);
+  }
+}
+
+.nav-link {
+  padding: 0.75rem;
+  border-radius: var(--radius-control);
+  text-decoration: underline transparent 2px;
+  text-underline-offset: 0.3em;
+  transition: text-decoration-color 150ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover {
+    text-decoration-color: var(--ink);
+  }
+}
+
+/* The strap: the hazard-striped webbing that marks the harness. Used in two places only. */
+.strap {
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 6px, var(--signal) 6px 12px);
+}
+
+/* Scroll reveal. Hidden only when JavaScript is running; components/reveal-observer.tsx
+   animates each element in. If that script never starts, everything shows after 3s. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.js:not(.reveal-ready) [data-reveal] {
+  animation: reveal-anyway 0s linear 3s forwards;
+}
+
+@keyframes reveal-anyway {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Session replay: lines arrive one after another, verdicts land with a short press. */
+.replay-line {
+  animation: line-in 260ms var(--ease-out) both;
+  animation-delay: calc(var(--at, 0) * 1ms);
+}
+
+.replay-verdict {
+  animation: verdict-in 220ms var(--ease-out) both;
+  animation-delay: calc(var(--at, 0) * 1ms);
+  transform-origin: left center;
+}
+
+@keyframes line-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes verdict-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .replay-line,
+  .replay-verdict {
+    animation: none;
+  }
+  .button {
+    transition: none;
+  }
+}
