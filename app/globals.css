@@ -1,40 +1,45 @@
 @import "tailwindcss";
 
-/* Tokens. Every colour, face and curve on the site comes from here. See DESIGN.md. */
+/*
+  Harnay design system. See DESIGN.md.
+  Every colour, size, space and curve on the site resolves through this file.
+  Sizes land on Tailwind's type scale, spaces on 0 2 4 8 12 16 24 32 40 48 64 80 96,
+  backgrounds are flat, and motion uses one curve.
+*/
 :root {
-  --chalk: #f1f2ee; /* ground */
-  --chalk-2: #e5e7e0; /* raised surface: one tone step, no shadow */
-  --chalk-3: #d5d8cf; /* pressed surface, rules inside surfaces */
-  --ink: #14171a; /* text and borders */
-  --ink-2: #474c54; /* captions and meta only */
-  --signal: #ffd60a; /* the action, and "asks you" */
-  --stop: #b42318; /* blocked */
-  --go: #17663a; /* runs */
+  --ground: #131209; /* page */
+  --panel: #1f1f1f; /* raised surface */
+  --panel-2: #272727; /* surface inside a surface, hover */
+  --well: #000000; /* terminals */
+  --line: #313131; /* borders, always on all four sides */
+  --fg: #f5f5f0; /* text */
+  --muted: #a3a39b; /* secondary text, 7.4:1 on ground */
+  --signal: #ffd60a; /* the action, the buckle, "asks you" */
+  --signal-hi: #ffe45c; /* the action under the pointer */
+  --on-signal: #131209;
+  --stop: #ff6b5c; /* blocked */
+  --go: #4ade80; /* runs */
 
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --radius-panel: 10px;
-  --radius-control: 6px;
-
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-chalk: var(--chalk);
-  --color-chalk-2: var(--chalk-2);
-  --color-chalk-3: var(--chalk-3);
-  --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
+  --color-ground: var(--ground);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-well: var(--well);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
   --color-signal: var(--signal);
+  --color-on-signal: var(--on-signal);
   --color-stop: var(--stop);
   --color-go: var(--go);
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-code), ui-monospace, "SF Mono", Menlo, monospace;
-  --radius-panel: var(--radius-panel);
-  --radius-control: var(--radius-control);
-  --ease-out: var(--ease-out);
-  --breakpoint-wide: 72rem;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --ease-base: var(--ease);
 }
 
 html {
@@ -46,24 +51,23 @@ html {
 
 body {
   overflow-x: clip;
-  background: var(--chalk);
-  color: var(--ink);
+  background: var(--ground);
+  color: var(--fg);
   font-family: var(--font-sans);
-  font-size: 1.125rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.5rem;
   -webkit-font-smoothing: antialiased;
-  caret-color: var(--ink);
+  caret-color: var(--signal);
 }
 
 ::selection {
   background: var(--signal);
-  color: var(--ink);
+  color: var(--on-signal);
 }
 
 :focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-  border-radius: 2px;
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
 }
 
 h1,
@@ -73,7 +77,9 @@ h3 {
 }
 
 p,
-li {
+li,
+dd,
+summary {
   text-wrap: pretty;
 }
 
@@ -84,116 +90,412 @@ kbd {
   font-variant-ligatures: none;
 }
 
-/* Display type: Archivo pushed to its condensed width. */
-.display {
-  font-stretch: 68%;
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  line-height: 0.94;
-}
-
-.shell {
-  width: 100%;
-  max-width: 76rem;
-  margin-inline: auto;
-  padding-inline: 1.25rem;
-}
-
-@media (min-width: 48rem) {
-  .shell {
-    padding-inline: 2rem;
+@layer components {
+  /* ── Text styles. Every piece of text uses one of these names. ── */
+  .heading-1 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.035em;
   }
-}
-
-/* The one button. Yellow fill, ink border, ink text. */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  padding: 0.625rem 1.25rem;
-  border: 2px solid var(--ink);
-  border-radius: var(--radius-control);
-  background: var(--signal);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 1.0625rem;
-  line-height: 1.2;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    transform 140ms var(--ease-out),
-    background-color 140ms var(--ease-out);
-}
-
-.button:active {
-  transform: scale(0.97);
-}
-
-.button[disabled] {
-  background: var(--chalk-3);
-  color: var(--ink-2);
-  border-color: var(--ink-2);
-  cursor: not-allowed;
-}
-
-.button-quiet {
-  background: transparent;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .button:not([disabled]):hover {
-    background: var(--ink);
-    color: var(--signal);
+  .heading-2 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
   }
-  .button-quiet:not([disabled]):hover {
-    background: var(--ink);
-    color: var(--chalk);
+  .heading-3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
-}
+  .heading-4 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .heading-5 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .heading-6 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 40rem) {
+    .heading-1 {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    .heading-2 {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+    .heading-3 {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .heading-1 {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+    .heading-2 {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    .heading-3 {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+    .heading-4 {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+    .heading-5 {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
 
-.link {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.18em;
-}
+  .title-1 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+  }
+  .title-2 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+  }
+  .title-3 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+  }
+  .title-4 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+  .title-5 {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+  }
 
-@media (hover: hover) and (pointer: fine) {
-  .link:hover {
+  .body-1 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+  }
+  .body-2 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+  }
+  .body-3 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+  }
+  .body-4 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+  }
+  .body-5 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+  .body-6 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+  }
+  /* Added for lead paragraphs under a heading: the next numbers in the Body group, on scale steps. */
+  .body-7 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+  }
+  .body-8 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+  }
+  @media (min-width: 64rem) {
+    .body-8 {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+  }
+
+  .button-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+  .button-md {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+  }
+  .button-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+  }
+  .button-xsm {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+  }
+
+  .caption-1 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+  .caption-2 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+  }
+  .caption-3 {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+  }
+  .caption-4 {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+  }
+  .caption-5 {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 400;
+  }
+
+  /* The one place a gradient is allowed: the hero heading's text. */
+  .hero-heading {
+    background-image: linear-gradient(90deg, #ffffff, #9b9b9b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── Layout ── */
+  .wrap {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 48rem) {
+    .wrap {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* One section per screen: at least a viewport tall, content centred. */
+  .screen {
+    display: flex;
+    min-height: 100svh;
+    align-items: center;
+    padding-block: 6rem;
+  }
+
+  /* ── Buttons: 8px by 12px padding, one curve, step on hover, press on click. ── */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 300ms var(--ease),
+      background-color 300ms var(--ease),
+      border-color 300ms var(--ease),
+      color 300ms var(--ease);
+  }
+  /* Keeps the visual size, gives the finger 48px. */
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: -0.25rem;
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.98);
+  }
+  .btn-primary {
     background: var(--signal);
+    color: var(--on-signal);
+  }
+  .btn-secondary {
+    background: var(--panel-2);
+    border-color: var(--line);
+    color: var(--fg);
+  }
+  .btn-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .btn[disabled] {
+    background: var(--panel);
+    border-color: var(--line);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:not([disabled]):hover {
+      transform: translateY(-1px);
+    }
+    .btn:not([disabled]):active {
+      transform: translateY(1px) scale(0.98);
+    }
+    .btn-primary:not([disabled]):hover {
+      background: var(--signal-hi);
+    }
+    .btn-secondary:not([disabled]):hover {
+      background: var(--line);
+    }
+  }
+
+  /* Text links inside copy: underlined, colour answers the pointer. */
+  .link {
+    text-decoration: underline;
+    text-decoration-color: var(--muted);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 300ms var(--ease);
+  }
+  /* Single-line links (nav, footer): the underline draws from the left. */
+  .link-draw {
+    position: relative;
+    transition: color 300ms var(--ease);
+  }
+  .link-draw::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0.25rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 500ms var(--ease);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      text-decoration-color: var(--signal);
+    }
+    .link-draw:hover {
+      color: var(--fg);
+    }
+    .link-draw:hover::after {
+      transform: scaleX(1);
+    }
+    /* A linked card lifts 2px. */
+    .lift {
+      transition:
+        transform 500ms var(--ease),
+        background-color 300ms var(--ease);
+    }
+    .lift:hover {
+      transform: translateY(-2px);
+      background-color: var(--panel-2);
+    }
+  }
+
+  /* Verdict chips */
+  .chip {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .chip-deny {
+    background: var(--stop);
+    color: var(--on-signal);
+  }
+  .chip-ask {
+    background: var(--signal);
+    color: var(--on-signal);
+  }
+  .chip-allow {
+    border-color: var(--go);
+    color: var(--go);
+  }
+  .chip-plain {
+    border-color: var(--line);
+    color: var(--muted);
   }
 }
 
-.nav-link {
-  padding: 0.75rem;
-  border-radius: var(--radius-control);
-  text-decoration: underline transparent 2px;
-  text-underline-offset: 0.3em;
-  transition: text-decoration-color 150ms var(--ease-out);
+/* How it works: stacked by default, pinned for four screens on a desktop with script and motion. */
+.steps-pinned {
+  display: none;
 }
-
-@media (hover: hover) and (pointer: fine) {
-  .nav-link:hover {
-    text-decoration-color: var(--ink);
+.steps-stacked {
+  display: flex;
+}
+@media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+  .js .steps {
+    height: 400svh;
+  }
+  .js .steps-pinned {
+    display: flex;
+  }
+  .js .steps-stacked {
+    display: none;
   }
 }
 
-/* The strap: the hazard-striped webbing that marks the harness. Used in two places only. */
-.strap {
-  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 6px, var(--signal) 6px 12px);
+/* ── Motion ── */
+
+/* Hero: enters once on load. */
+[data-enter] > * {
+  animation: enter 800ms var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
 }
 
-/* Scroll reveal. Hidden only when JavaScript is running; components/reveal-observer.tsx
-   animates each element in. If that script never starts, everything shows after 3s. */
+/* Sections rise 32px and fade in once. components/reveal-observer.tsx plays it;
+   if that script never starts, everything shows after 3s. */
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(32px);
 }
-
 .js:not(.reveal-ready) [data-reveal] {
   animation: reveal-anyway 0s linear 3s forwards;
 }
-
 @keyframes reveal-anyway {
   to {
     opacity: 1;
@@ -203,23 +505,20 @@ kbd {
 
 /* Session replay: lines arrive one after another, verdicts land with a short press. */
 .replay-line {
-  animation: line-in 260ms var(--ease-out) both;
+  animation: line-in 500ms var(--ease) both;
   animation-delay: calc(var(--at, 0) * 1ms);
 }
-
 .replay-verdict {
-  animation: verdict-in 220ms var(--ease-out) both;
+  animation: verdict-in 500ms var(--ease) both;
   animation-delay: calc(var(--at, 0) * 1ms);
   transform-origin: left center;
 }
-
 @keyframes line-in {
   from {
     opacity: 0;
     transform: translateY(8px);
   }
 }
-
 @keyframes verdict-in {
   from {
     opacity: 0;
@@ -227,20 +526,53 @@ kbd {
   }
 }
 
+/* The closing buckle fastens once as it enters the screen: the prong slides home from the left. */
+@supports (animation-timeline: view()) {
+  .buckle-clip path {
+    animation: clip-in var(--ease) both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 45%;
+  }
+}
+@keyframes clip-in {
+  from {
+    transform: translateX(-26px);
+    opacity: 0.35;
+  }
+}
+
+/* Tagline reveal: words wake up one at a time. */
+/* Muted only when the script that wakes them is running. */
+.js .word {
+  color: color-mix(in srgb, var(--fg) 30%, transparent);
+  transition: color 500ms var(--ease);
+}
+.js .word[data-on] {
+  color: var(--fg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  [data-enter] > *,
+  .replay-line,
+  .replay-verdict,
+  .buckle-clip path {
+    animation: none;
   }
   .js [data-reveal] {
     opacity: 1;
     transform: none;
     animation: none;
   }
-  .replay-line,
-  .replay-verdict {
-    animation: none;
+  .js .word {
+    color: var(--fg);
+    transition: none;
   }
-  .button {
+  .btn,
+  .lift,
+  .link-draw::after {
     transition: none;
   }
 }

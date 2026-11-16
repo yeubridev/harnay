@@ -30,10 +30,10 @@ export function RevealObserver() {
           const order = Number(getComputedStyle(el).getPropertyValue("--reveal-order")) || 0;
           el.animate(
             [
-              { opacity: 0, transform: "translateY(24px)" },
+              { opacity: 0, transform: "translateY(32px)" },
               { opacity: 1, transform: "none" },
             ],
-            { duration: 600, delay: order * 70, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" },
+            { duration: 700, delay: order * 90, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" },
           );
         }
       },
