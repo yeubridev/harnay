@@ -1,20 +1,24 @@
 import Link from "next/link";
+import { Buckle } from "@/components/logo";
 import { SiteFooter, SiteHeader } from "@/components/site-header";
 
 export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="shell pb-24 pt-6 md:pt-10">
-        <h1 className="display text-[clamp(2.75rem,6vw,4.5rem)]">That page is not here</h1>
-        <p className="mt-5 max-w-[40rem]">The link may be old. The builder and the docs are one click away.</p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/new" className="button">
-            Build your harness
-          </Link>
-          <Link href="/docs" className="button button-quiet">
-            Read the docs
-          </Link>
+      <main id="main" className="screen">
+        <div className="wrap flex flex-col items-start gap-6">
+          <Buckle className="h-12 w-12 text-signal" />
+          <h1 className="heading-2">This page is not on the harness</h1>
+          <p className="body-7 max-w-md text-muted">The link may be old. The builder and the docs are one step away.</p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/new" className="btn btn-primary">
+              Get Harnay
+            </Link>
+            <Link href="/docs" className="btn btn-secondary">
+              Read the docs
+            </Link>
+          </div>
         </div>
       </main>
       <SiteFooter />

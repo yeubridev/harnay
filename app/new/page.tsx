@@ -6,7 +6,7 @@ import { catalog, defaultConfig, parseConfig } from "@/lib/harness/catalog";
 import { previewFiles } from "@/lib/harness/preview";
 
 export const metadata: Metadata = {
-  title: "Build your harness",
+  title: "Get Harnay",
   description: "Pick your stack, your agents and your packs. Read every file, then copy one command.",
   alternates: { canonical: "/new" },
 };
@@ -25,9 +25,11 @@ export default function NewHarness({ searchParams }: PageProps<"/new">) {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="shell pb-24 pt-6 md:pt-10">
-        <h1 className="display text-[clamp(2.75rem,6vw,4.5rem)]">Build your harness</h1>
-        <p className="mb-10 mt-4 max-w-[40rem] md:mb-14">Pick what applies to your project. The file list is exactly what the command writes, so read it first.</p>
+      <main id="main" className="wrap flex flex-col gap-12 pb-24 pt-24">
+        <div className="flex flex-col gap-4">
+          <h1 className="heading-2">Harness builder</h1>
+          <p className="body-7 max-w-xl text-muted">Pick what applies to your project. The file list is exactly what the command writes, so read it first.</p>
+        </div>
         {/* The free default is in the static page, so the builder works before the link's choices arrive. */}
         <Suspense fallback={<Builder catalog={catalog} initialConfig={defaultConfig} initialFiles={previewFiles(defaultConfig, false)} />}>
           <BuilderFromLink searchParams={searchParams} />

@@ -7,8 +7,8 @@ import type { PreviewFile } from "@/lib/harness/preview";
 
 type Props = { catalog: Catalog; initialConfig: Config; initialFiles: PreviewFile[] };
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return <span className="shrink-0 rounded-[4px] border-2 border-ink px-1.5 text-[0.75rem] font-bold leading-5">{children}</span>;
+function Tag({ children, tone = "plain" }: { children: React.ReactNode; tone?: "plain" | "ask" | "allow" }) {
+  return <span className={`chip shrink-0 chip-${tone}`}>{children}</span>;
 }
 
 function Choice({
@@ -20,6 +20,7 @@ function Choice({
   title,
   note,
   tag,
+  tone,
 }: {
   type: "radio" | "checkbox";
   name: string;
@@ -29,20 +30,21 @@ function Choice({
   title: string;
   note: string;
   tag?: string;
+  tone?: "plain" | "ask" | "allow";
 }) {
   return (
     <label
-      className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-control px-3 py-3 transition-colors duration-150 has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-ink ${
-        checked ? "bg-chalk-3" : "[@media(hover:hover)_and_(pointer:fine)]:hover:bg-chalk-3/50"
-      } ${disabled ? "cursor-not-allowed" : ""}`}
+      className={`flex items-start gap-3 rounded-xl border p-3 transition-colors duration-300 ease-base has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-signal ${
+        checked ? "border-line bg-panel-2" : "border-transparent hover:bg-panel"
+      } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
     >
-      <input type={type} name={name} checked={checked} disabled={disabled} onChange={onChange} className="mt-1 h-5 w-5 shrink-0 accent-ink focus-visible:outline-none" />
-      <span className="min-w-0 flex-1">
+      <input type={type} name={name} checked={checked} disabled={disabled} onChange={onChange} className="mt-1 h-4 w-4 shrink-0 accent-signal focus-visible:outline-none" />
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex items-center justify-between gap-3">
-          <span className="font-bold">{title}</span>
-          {tag ? <Tag>{tag}</Tag> : null}
+          <span className="title-3 text-fg">{title}</span>
+          {tag ? <Tag tone={tone}>{tag}</Tag> : null}
         </span>
-        <span className="mt-0.5 block text-[0.9375rem] leading-snug">{note}</span>
+        <span className="caption-2 text-muted">{note}</span>
       </span>
     </label>
   );
@@ -101,19 +103,19 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
     });
 
   return (
-    <div className="grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
+    <div className="grid gap-12 lg:grid-cols-[2fr_3fr]">
       <form className="flex flex-col gap-8" onSubmit={(event) => event.preventDefault()}>
-        <fieldset>
-          <legend className="display mb-2 text-[1.75rem]">Your stack</legend>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="heading-6 pb-3">Your stack</legend>
           <div className="flex flex-col gap-1">
             {catalog.stacks.map((stack) => (
-              <Choice key={stack.id} type="radio" name="stack" checked={config.stack === stack.id} onChange={() => setStack(stack.id)} title={stack.title} note={stack.blurb} tag={stack.pro ? "Pro" : "Free"} />
+              <Choice key={stack.id} type="radio" name="stack" checked={config.stack === stack.id} onChange={() => setStack(stack.id)} title={stack.title} note={stack.blurb} tag={stack.pro ? "Pro" : "Free"} tone={stack.pro ? "ask" : "allow"} />
             ))}
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend className="display mb-2 text-[1.75rem]">Your agents</legend>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="heading-6 pb-3">Your agents</legend>
           <div className="flex flex-col gap-1">
             {catalog.agents.map((agent) => (
               <Choice
@@ -130,8 +132,8 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend className="display mb-2 text-[1.75rem]">Packs</legend>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="heading-6 pb-3">Packs</legend>
           <div className="flex flex-col gap-1">
             {catalog.packs.map((pack) => (
               <Choice
@@ -144,55 +146,56 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
                 title={pack.title}
                 note={pack.blurb}
                 tag={pack.required ? "Always on" : pack.pro ? "Pro" : "Free"}
+                tone={pack.required ? "plain" : pack.pro ? "ask" : "allow"}
               />
             ))}
           </div>
         </fieldset>
       </form>
 
-      <div className="flex min-w-0 flex-col gap-6">
-        <section aria-labelledby="command-heading" className="rounded-panel bg-chalk-2 p-4 md:p-5">
-          <h2 id="command-heading" className="display text-[1.75rem]">
+      <div className="flex min-w-0 flex-col gap-8">
+        <section aria-labelledby="command-heading" className="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-4 md:p-6">
+          <h2 id="command-heading" className="heading-6">
             Paste this in your project folder
           </h2>
-          <CopyCommand command={command} className="mt-3" />
+          <CopyCommand command={command} />
           {paid ? (
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[0.9375rem] leading-snug">
-                This selection includes Pro content. With a key, run <code className="whitespace-nowrap text-[0.875rem]">npx harnay login &lt;key&gt;</code> once, then the command above.
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="caption-2 text-muted">
+                This selection includes Pro content. With a key, run <code className="whitespace-nowrap text-fg">npx harnay login &lt;key&gt;</code> once, then the command above.
               </p>
-              <form action="/api/checkout" method="post" className="shrink-0">
+              <form action="/api/checkout" method="post" className="flex shrink-0 flex-col">
                 <input type="hidden" name="plan" value="pro" />
-                <button type="submit" className="button w-full whitespace-nowrap sm:w-auto">
-                  Get Pro, $19 a month
+                <button type="submit" className="btn btn-primary">
+                  Subscribe to Pro
                 </button>
               </form>
             </div>
           ) : (
-            <p className="mt-3 text-[0.9375rem]">Free. No account, no key. The installer shows every file and waits for your yes.</p>
+            <p className="caption-2 text-muted">Free. No account, no key. The installer shows every file and waits for your yes.</p>
           )}
         </section>
 
-        <section aria-labelledby="files-heading" aria-busy={status === "loading"}>
+        <section aria-labelledby="files-heading" aria-busy={status === "loading"} className="flex flex-col gap-4">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 id="files-heading" className="display text-[1.75rem]">
+            <h2 id="files-heading" className="heading-6">
               What it writes
             </h2>
-            <p className="text-[0.9375rem]" role="status">
+            <p className="caption-2 text-muted" role="status">
               {status === "loading" ? "Updating the file list" : `${count(files.length, "file", "files")}. ${count(mine, "is", "are")} yours, the rest update with sync.`}
             </p>
           </div>
 
           {status === "error" ? (
-            <div className="mt-3 flex flex-col items-start gap-3 rounded-panel border-2 border-stop p-4">
-              <p>The preview did not load. Your selection is kept and the command above is still right.</p>
-              <button type="button" className="button button-quiet" onClick={() => setAttempt((n) => n + 1)}>
+            <div className="flex flex-col items-start gap-4 rounded-2xl border border-stop bg-panel p-4">
+              <p className="body-3">The preview did not load. Your selection is kept and the command above is still right.</p>
+              <button type="button" className="btn btn-secondary" onClick={() => setAttempt((n) => n + 1)}>
                 Try again
               </button>
             </div>
           ) : (
-            <div className={`mt-3 grid gap-3 transition-opacity duration-150 md:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] ${status === "loading" ? "opacity-60" : ""}`}>
-              <ul className="max-h-72 overflow-y-auto rounded-panel bg-chalk-2 p-2 md:max-h-[34rem]">
+            <div className={`grid gap-2 rounded-2xl border border-line bg-panel p-2 transition-opacity duration-300 ease-base md:grid-cols-[2fr_3fr] ${status === "loading" ? "opacity-60" : ""}`}>
+              <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto md:max-h-128">
                 {files.map((file) => {
                   const on = file.path === current?.path;
                   return (
@@ -201,12 +204,12 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
                         type="button"
                         aria-current={on ? "true" : undefined}
                         onClick={() => setSelected(file.path)}
-                        className={`flex min-h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-[4px] px-2 py-1.5 text-left font-mono text-[0.8125rem] transition-colors duration-150 ${
-                          on ? "bg-signal font-semibold" : "[@media(hover:hover)_and_(pointer:fine)]:hover:bg-chalk-3"
+                        className={`caption-2 flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-left font-mono transition-colors duration-300 ease-base ${
+                          on ? "bg-panel-2 text-fg" : "text-muted hover:bg-panel-2 hover:text-fg"
                         }`}
                       >
                         <span className="min-w-0 [overflow-wrap:anywhere]">{breakable(file.path)}</span>
-                        {file.owner === "you" ? <Tag>Yours</Tag> : file.locked ? <Tag>Pro</Tag> : null}
+                        {file.owner === "you" ? <Tag>Yours</Tag> : file.locked ? <Tag tone="ask">Pro</Tag> : null}
                       </button>
                     </li>
                   );
@@ -214,13 +217,13 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
               </ul>
 
               {current ? (
-                <div className="min-w-0 rounded-panel bg-chalk-2 p-4">
-                  <p className="mb-3 break-all font-mono text-[0.8125rem] font-semibold">{current.path}</p>
-                  <pre tabIndex={0} className="max-h-[30rem] overflow-auto whitespace-pre-wrap break-words text-[0.8125rem] leading-relaxed">
+                <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-well p-4">
+                  <p className="caption-4 font-mono text-muted [overflow-wrap:anywhere]">{current.path}</p>
+                  <pre tabIndex={0} className="caption-2 max-h-112 overflow-auto whitespace-pre-wrap break-words text-fg">
                     {current.content}
                   </pre>
                   {current.locked ? (
-                    <p className="mt-4 rounded-control bg-chalk p-3 text-[0.9375rem]">
+                    <p className="caption-2 rounded-lg border border-line bg-panel p-3 text-muted">
                       {count(current.hiddenLines ?? 0, "more line", "more lines")} with Pro. You get the whole file at install, and you can read it before you commit it.
                     </p>
                   ) : null}
@@ -230,20 +233,20 @@ export function Builder({ catalog, initialConfig, initialFiles }: Props) {
           )}
         </section>
 
-        <section aria-labelledby="next-heading">
-          <h2 id="next-heading" className="display text-[1.75rem]">
+        <section aria-labelledby="next-heading" className="flex flex-col gap-4">
+          <h2 id="next-heading" className="heading-6">
             After the paste
           </h2>
-          <ol className="mt-3 grid gap-4 md:grid-cols-2">
-            <li className="rounded-panel bg-chalk-2 p-4">
-              <p className="font-bold">1. Tell the agent what you are building</p>
-              <CopyCommand command={config.agents.includes("claude") ? "/project-brief" : "Use the project-brief skill to fill in PROJECT.md."} where={config.agents.includes("claude") ? "Claude Code" : "agent"} className="mt-3" />
-              <p className="mt-3 text-[0.9375rem]">It asks about six questions and writes PROJECT.md for you.</p>
+          <ol className="grid gap-4 md:grid-cols-2">
+            <li className="flex flex-col gap-3 rounded-2xl border border-line bg-panel p-4">
+              <p className="title-3">Tell the agent what you are building</p>
+              <CopyCommand command={config.agents.includes("claude") ? "/project-brief" : "Use the project-brief skill to fill in PROJECT.md."} where={config.agents.includes("claude") ? "Claude Code" : "agent"} />
+              <p className="caption-2 text-muted">It asks about six questions and writes PROJECT.md for you.</p>
             </li>
-            <li className="rounded-panel bg-chalk-2 p-4">
-              <p className="font-bold">2. Check the guard whenever you like</p>
-              <CopyCommand command="npx harnay doctor" className="mt-3" />
-              <p className="mt-3 text-[0.9375rem]">It replays every rule example and fires a test call through the hook.</p>
+            <li className="flex flex-col gap-3 rounded-2xl border border-line bg-panel p-4">
+              <p className="title-3">Check the guard whenever you like</p>
+              <CopyCommand command="npx harnay doctor" />
+              <p className="caption-2 text-muted">It replays every rule example and fires a test call through the hook.</p>
             </li>
           </ol>
         </section>
