@@ -1,0 +1,13 @@
+{
+  "name": "harnay",
+  "version": "0.1.0",
+  "description": "Put your coding agent in a harness: rules, permissions and a guard hook for Claude Code and Cursor, installed with one command.",
+  "keywords": ["claude-code", "cursor", "codex", "agent", "harness", "hooks", "guardrails", "skills", "AGENTS.md"],
+  "homepage": "https://harnay.dev",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "harnay": "bin/harnay.mjs" },
+  "files": ["bin", "src", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test \"test/*.test.mjs\"" }
+}
