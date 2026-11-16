@@ -18,7 +18,7 @@
     {
       "id": "next-supabase",
       "title": "Next.js + Supabase",
-      "blurb": "App Router, server-only secrets, row level security on every table, migrations as files.",
+      "blurb": "App Router, secrets kept on the server, row level security on every table, migrations as files.",
       "pro": true,
       "skills": ["supabase-changes"],
       "allow": ["Bash(npm run lint)", "Bash(npm run lint *)", "Bash(npm run typecheck)", "Bash(npm run test)", "Bash(npm run test *)", "Bash(npm run build)", "Bash(npx tsc --noEmit)", "Bash(npx supabase status)", "Bash(npx supabase migration list *)"],
@@ -73,7 +73,7 @@
     {
       "id": "design",
       "title": "Design",
-      "blurb": "Stops the purple-gradient default. Tokens first, real content, every state, checked on screenshots.",
+      "blurb": "Stops the purple gradient default. Tokens first, real content, every state, checked on screenshots.",
       "pro": true,
       "skills": ["design-taste", "ui-states"],
       "agents": ["design-critic"],

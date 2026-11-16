@@ -23,75 +23,94 @@ export const fullConfig: Config = {
   packs: catalog.packs.map((p) => p.id),
 };
 
-const body = (markdown: string) => markdown.replace(/^---\n[\s\S]*?\n---\n+/, "");
-const lines = (text: string, from: number, count: number) => text.split("\n").slice(from, from + count);
-const clip = (line: string) => (line.length > 132 ? `${line.slice(0, 129)}...` : line);
+export type FrameLine = { kind: "command" | "prompt" | "agent" | "new" | "ok" | "plain" | "result"; text: string; decision?: Decision; rule?: string | null };
+export type Step = { id: string; number: string; title: string; text: string; window: string; lines: FrameLine[] };
 
-/** What `init` writes for the full harness, grouped the way the landing page explains it. */
-export function layers() {
+/** The four steps of setup, each with the terminal it plays. Outputs are the CLI's real ones. */
+export function steps(): Step[] {
+  const stats = guard.stats;
+  const free = generate({ stack: "universal", agents: ["claude"], packs: ["guard"] });
+  const managed = free.filter((f) => f.owner === "harnay").length;
+  return [
+    {
+      id: "paste",
+      number: "01",
+      title: "Paste one command",
+      text: "The installer lists every file it will write and waits for your yes. Anything it replaces is backed up first.",
+      window: "Terminal",
+      lines: [
+        { kind: "command", text: "npx harnay@latest init" },
+        ...free.map((f) => ({ kind: "new" as const, text: f.path })),
+        { kind: "plain", text: `Write ${free.length} files to ~/my-app? [Y/n] y` },
+        { kind: "result", text: `Guard is live: ${stats.rules} rules, ${stats.examples} examples replayed on this machine.` },
+      ],
+    },
+    {
+      id: "brief",
+      number: "02",
+      title: "Answer six questions",
+      text: "Type /project-brief. The agent interviews you, one question at a time, and writes PROJECT.md, the one file that is yours.",
+      window: "Claude Code",
+      lines: [
+        { kind: "prompt", text: "/project-brief" },
+        { kind: "agent", text: "I read package.json and the routes. First question: what are we building, in one sentence?" },
+        { kind: "prompt", text: "Online booking for independent dog groomers." },
+        { kind: "agent", text: "Who is it for? Name a person and a situation." },
+        { kind: "prompt", text: "A groomer with one van who loses bookings to phone tag." },
+        { kind: "agent", text: "What must work for this version to count as done?" },
+        { kind: "result", text: "Wrote PROJECT.md" },
+      ],
+    },
+    {
+      id: "guard",
+      number: "03",
+      title: "Let the guard check each call",
+      text: "Before a command or a file access runs, the hook reads it. It blocks, asks you, or stays out of the way.",
+      window: "Claude Code",
+      lines: (guard.replay as ReplayLine[]).map((line) => ({ kind: "command" as const, text: line.command, decision: line.decision, rule: line.rule })),
+    },
+    {
+      id: "proof",
+      number: "04",
+      title: "Replay the proof",
+      text: "npx harnay doctor replays every rule example and fires a test call through the hook. It exits 1 on failure, so it works in CI.",
+      window: "Terminal",
+      lines: [
+        { kind: "command", text: "npx harnay doctor" },
+        { kind: "ok", text: `Harness installed  version ${catalog.version}` },
+        { kind: "ok", text: `Managed files present  ${managed} files` },
+        { kind: "ok", text: "Managed files unmodified" },
+        { kind: "ok", text: "Guard registered with Claude Code  fails closed" },
+        { kind: "ok", text: `Guard rules  ${stats.rules} rules, ${stats.examples} examples replayed` },
+        { kind: "ok", text: "Guard blocks a force push to main" },
+        { kind: "ok", text: "Secrets ignored by git" },
+        { kind: "result", text: "Harness is intact." },
+      ],
+    },
+  ];
+}
+
+/** The five layers the command writes, each with a short real excerpt. */
+export function inside() {
   const files = generate(fullConfig);
   const get = (path: string) => files.find((f) => f.path === path)!.content;
-  const count = (prefix: string) => files.filter((f) => f.path.startsWith(prefix)).length;
-
-  const agentsMd = get("AGENTS.md").split("\n");
-  const howAt = agentsMd.findIndex((l) => l.startsWith("## How to work"));
+  const names = (prefix: string) => files.filter((f) => f.path.startsWith(prefix)).map((f) => f.path.slice(prefix.length).split("/")[0].replace(/\.md$/, ""));
+  const rules = get("AGENTS.md")
+    .split("\n")
+    .filter((l) => /^\d\. /.test(l))
+    .slice(0, 3)
+    .map((l) => l.replace(/^(\d\. [^.]+\.).*/, "$1"));
   const denied = JSON.parse(get(".claude/settings.json")).permissions.deny as string[];
-  const sample = guard.sampleRule;
-
   return {
-    tree: [
-      { label: "AGENTS.md", layer: "rules", depth: 0 },
-      { label: "CLAUDE.md", layer: "rules", depth: 0 },
-      { label: "PROJECT.md", layer: "brief", depth: 0, note: "yours" },
-      { label: "DESIGN.md", layer: "brief", depth: 0, note: "yours" },
-      { label: ".claude/", layer: null, depth: 0 },
-      { label: "settings.json", layer: "permissions", depth: 1 },
-      { label: "hooks/", layer: "guard", depth: 1, note: `${count(".claude/hooks/")} files` },
-      { label: "skills/", layer: "skills", depth: 1, note: `${count(".claude/skills/")} skills` },
-      { label: "agents/", layer: "skills", depth: 1, note: `${count(".claude/agents/")} reviewers` },
-      { label: "harnay.json", layer: "guard", depth: 0, note: "manifest" },
-    ],
-    steps: [
-      {
-        id: "rules",
-        title: "Rules every agent reads",
-        text: "Six working rules, five boundaries and the conventions of your stack, in one short file. Claude Code, Cursor and Codex all read it.",
-        file: "AGENTS.md",
-        excerpt: agentsMd.slice(howAt, howAt + 6).map(clip),
-        pro: false,
-      },
-      {
-        id: "brief",
-        title: "Your brief",
-        text: "The one file that is yours. Type /project-brief and the agent interviews you, one question at a time, then writes it. Sync never touches it.",
-        file: "PROJECT.md",
-        excerpt: lines(get("PROJECT.md").replace(/<!--[\s\S]*?-->\n+/, ""), 0, 11),
-        pro: false,
-      },
-      {
-        id: "permissions",
-        title: "Permissions",
-        text: "Deny rules for .env files, private keys and the harness itself. Claude Code applies deny rules in every permission mode, bypass included.",
-        file: ".claude/settings.json",
-        excerpt: ['"deny": [', ...denied.slice(0, 4).map((r) => `  "${r}",`), `  ... ${denied.length - 6} more`, ...denied.slice(-2).map((r) => `  "${r}",`), "]"],
-        pro: false,
-      },
-      {
-        id: "guard",
-        title: "The guard",
-        text: `A hook that runs before every command and file access. It parses the command line, so git -C . push --force and bash -c "..." are read for what they do. ${guard.stats.rules} rules, ${guard.stats.examples} examples.`,
-        file: ".claude/hooks/guard-rules.mjs",
-        excerpt: [`rule    ${sample.id}`, ...sample.deny.map((e) => `block   ${e}`), ...sample.ask.map((e) => `ask     ${e}`), ...sample.allow.map((e) => `allow   ${e}`)],
-        pro: false,
-      },
-      {
-        id: "skills",
-        title: "Skills and reviewers",
-        text: "How the work gets done: test first, find the root cause, prove it before saying done, design from tokens, check security before merge. Three read-only reviewers check the result.",
-        file: ".claude/skills/verify-before-done/SKILL.md",
-        excerpt: lines(body(get(".claude/skills/verify-before-done/SKILL.md")), 6, 6).map(clip),
-        pro: true,
-      },
-    ],
+    rules,
+    denied: [...denied.slice(0, 3), ...denied.slice(-1)],
+    deniedCount: denied.length,
+    skills: names(".claude/skills/"),
+    reviewers: names(".claude/agents/"),
+    verdicts: (guard.replay as ReplayLine[]).slice(0, 4),
+    brief: get("PROJECT.md")
+      .split("\n")
+      .filter((l) => l.startsWith("## "))
+      .map((l) => l.slice(3)),
   };
 }
