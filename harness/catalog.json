@@ -1,0 +1,91 @@
+{
+  "version": "2026.11.1",
+  "agents": [
+    { "id": "claude", "title": "Claude Code", "enforcement": "Guard hook and permission rules on every tool call" },
+    { "id": "cursor", "title": "Cursor", "enforcement": "Guard hook on shell commands and file reads (beta)" },
+    { "id": "codex", "title": "Codex", "enforcement": "Rules and skills only. Codex has no hook to enforce them" }
+  ],
+  "stacks": [
+    {
+      "id": "universal",
+      "title": "Any project",
+      "blurb": "No stack assumptions. The agent reads your repo for its commands.",
+      "pro": false,
+      "skills": [],
+      "allow": [],
+      "commands": {}
+    },
+    {
+      "id": "next-supabase",
+      "title": "Next.js + Supabase",
+      "blurb": "App Router, server-only secrets, row level security on every table, migrations as files.",
+      "pro": true,
+      "skills": ["supabase-changes"],
+      "allow": ["Bash(npm run lint)", "Bash(npm run lint *)", "Bash(npm run typecheck)", "Bash(npm run test)", "Bash(npm run test *)", "Bash(npm run build)", "Bash(npx tsc --noEmit)", "Bash(npx supabase status)", "Bash(npx supabase migration list *)"],
+      "commands": { "dev": "npm run dev", "test": "npm run test", "lint": "npm run lint", "typecheck": "npx tsc --noEmit", "build": "npm run build" }
+    },
+    {
+      "id": "vite-supabase",
+      "title": "Lovable or Bolt export",
+      "blurb": "Vite + React + Supabase. Nothing secret in the bundle, edge functions for keys, RLS as the only wall.",
+      "pro": true,
+      "skills": ["supabase-changes"],
+      "allow": ["Bash(npm run lint)", "Bash(npm run lint *)", "Bash(npm run build)", "Bash(npm run test)", "Bash(npm run test *)", "Bash(npx tsc --noEmit)", "Bash(npx supabase status)"],
+      "commands": { "dev": "npm run dev", "test": "npm run test", "lint": "npm run lint", "typecheck": "npx tsc --noEmit", "build": "npm run build" }
+    },
+    {
+      "id": "fastapi",
+      "title": "Python + FastAPI",
+      "blurb": "Pydantic at every boundary, auth as a dependency, Alembic migrations, pytest.",
+      "pro": true,
+      "skills": [],
+      "allow": ["Bash(uv run pytest)", "Bash(uv run pytest *)", "Bash(uv run ruff check *)", "Bash(uv run ruff format *)", "Bash(uv run mypy *)", "Bash(pytest)", "Bash(pytest *)", "Bash(ruff check *)"],
+      "commands": { "dev": "uv run fastapi dev", "test": "uv run pytest", "lint": "uv run ruff check .", "typecheck": "uv run mypy ." }
+    },
+    {
+      "id": "expo",
+      "title": "Expo (React Native)",
+      "blurb": "Expo Router, nothing secret in the bundle, secure storage for tokens, releases left to you.",
+      "pro": true,
+      "skills": [],
+      "allow": ["Bash(npm run lint)", "Bash(npm run lint *)", "Bash(npm run test)", "Bash(npm run test *)", "Bash(npx tsc --noEmit)", "Bash(npx expo-doctor)", "Bash(npx expo install --check)"],
+      "commands": { "dev": "npx expo start", "test": "npm run test", "lint": "npm run lint", "typecheck": "npx tsc --noEmit" }
+    }
+  ],
+  "packs": [
+    {
+      "id": "guard",
+      "title": "Guard",
+      "blurb": "A hook that checks every command and file access before it runs, plus permission rules for secrets.",
+      "pro": false,
+      "required": true,
+      "skills": ["project-brief"],
+      "agents": []
+    },
+    {
+      "id": "quality",
+      "title": "Quality",
+      "blurb": "Test first, find the root cause, prove it works before saying done. Adds a code reviewer.",
+      "pro": true,
+      "skills": ["test-first", "verify-before-done", "debug-root-cause"],
+      "agents": ["code-reviewer"]
+    },
+    {
+      "id": "design",
+      "title": "Design",
+      "blurb": "Stops the purple-gradient default. Tokens first, real content, every state, checked on screenshots.",
+      "pro": true,
+      "skills": ["design-taste", "ui-states"],
+      "agents": ["design-critic"],
+      "files": [{ "from": "base/DESIGN.md", "to": "DESIGN.md", "owner": "you" }]
+    },
+    {
+      "id": "ship",
+      "title": "Ship",
+      "blurb": "A security pass before merge and a pull request you can review in five minutes.",
+      "pro": true,
+      "skills": ["security-check", "ship-it"],
+      "agents": ["security-reviewer"]
+    }
+  ]
+}
