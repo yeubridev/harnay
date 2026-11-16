@@ -81,8 +81,8 @@ export function doctor(root) {
     const call = { hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'git push --force origin main' }, cwd: root };
     const live = run(process.execPath, [guard], { input: JSON.stringify(call), env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
     const decision = /"permissionDecision":"deny"/.test(live.stdout ?? '');
-    if (decision) pass(`Guard blocks a force-push to main (${dir})`);
-    else fail(`Guard blocks a force-push to main (${dir})`, 'The hook did not answer "deny" to a test call.');
+    if (decision) pass(`Guard blocks a force push to main (${dir})`);
+    else fail(`Guard blocks a force push to main (${dir})`, 'The hook did not answer "deny" to a test call.');
   }
 
   if (agents.includes('claude')) {

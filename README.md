@@ -17,7 +17,7 @@ This repository holds everything: the site (harnay.dev), the harness templates, 
 | `app/` | Landing (`/`), builder (`/new`), docs, welcome, account, and the API. |
 | `cli/` | The `harnay` npm package: init, audit, doctor, sync, login. |
 | `scripts/guard-data.mjs` | Runs the guard and writes `lib/guard-data.json`, the only source of guard facts on the site. |
-| `PRODUCT.md`, `DESIGN.md` | Who it is for and how it looks. Read before changing copy or UI. |
+| `PRODUCT.md`, `DESIGN.md` | Who it is for and how it looks: tokens, named text styles, the buckle mark, motion. Read before changing copy or UI. |
 | `docs/gtm.md` | Verdict, positioning, pricing and the 30-day plan (in French). |
 
 ## Run it
@@ -88,13 +88,15 @@ Verified here, on the production build:
 - The guard's 726 examples behave as written.
 - A free and a Pro install through the real CLI against the real server, then `doctor`, both green.
 - In real Claude Code 2.1.325, the installed harness blocked `cat .env` (guard hook), a Read of `.env` (permission rule) and `git push --force origin main` (guard hook), and the `project-brief` skill was discovered.
-- The builder, shared links, error and retry, copy, and the checkout redirect, in a browser (`tests/e2e/flow.cjs`).
+- In a browser (`tests/e2e/flow.cjs`): the builder, shared links, error and retry, copy, the checkout redirect, one section per screen at 1440 by 900, the pinned steps, the word by word tagline, the phone menu, and the legal pages.
 
 Not verified:
 
 - Checkout, the welcome page with a real session, and the portal against live Stripe. The code type-checks against the Stripe SDK and degrades cleanly without keys, but no real payment has gone through it. Step 4 above closes this.
 - The Cursor adapter inside Cursor. It follows Cursor's documented hook contract and is labelled beta everywhere.
 - Windows. The guard has PowerShell rules and the CLI uses no shell, but nothing was run on Windows.
+- tasteskill's browser checker on the landing page. Its text linter passes with no FAIL; the browser part needs a Chrome that this build machine would only start without its sandbox.
+- `/terms` and `/privacy` are plain drafts written from what the product does. Have them read by someone qualified, and add your legal entity and a contact address, before taking payments.
 
 ## Known gaps
 

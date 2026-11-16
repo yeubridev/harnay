@@ -166,7 +166,7 @@ describe('harnay init, doctor, sync', () => {
 
     const check = await cli(['doctor'], root);
     assert.equal(check.status, 0, check.stdout);
-    assert.match(check.stdout, /Guard blocks a force-push to main/);
+    assert.match(check.stdout, /Guard blocks a force push to main/);
     assert.match(check.stdout, /warn\s+PROJECT\.md filled in/);
   });
 

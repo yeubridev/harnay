@@ -27,6 +27,7 @@ Harnay helps people who ship real products with Claude Code keep the agent off t
 | `/new` builder | Operate | Choose stack, agents, packs. Show every file. Hand over one command. |
 | `/docs` | Read | The map: commands, files, every rule, limits. |
 | `/welcome`, `/account` | Operate | Deliver the license key. Open Stripe's portal. |
+| `/terms`, `/privacy` | Read | Say plainly what is promised and what is collected. |
 | `npx harnay` CLI | Operate | init, audit, doctor, sync, login. Show the plan, wait for yes, never write outside the harness. |
 | The installed harness | Operate | Read by agents. Short, specific, no filler. |
 
